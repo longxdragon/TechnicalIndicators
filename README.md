@@ -1,0 +1,2 @@
+# TechnicalIndicators
+A technical indicator
