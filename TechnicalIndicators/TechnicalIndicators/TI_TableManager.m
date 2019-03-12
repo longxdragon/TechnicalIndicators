@@ -11,6 +11,7 @@
 @interface TI_TableManager ()
 
 @property (nonatomic, strong) NSMutableDictionary *operatorMapper;
+@property (nonatomic, strong) NSMutableDictionary *funcIdentifyMapper;
 @property (nonatomic, strong) NSMutableDictionary *funcMapper;
 @property (nonatomic, strong) NSMutableDictionary *deminsionMapper;
 
@@ -41,6 +42,13 @@
     return NO;
 }
 
++ (BOOL)existFuncIdentify:(NSString *)name {
+    if ([[TI_TableManager shareManager].funcIdentifyMapper objectForKey:name]) {
+        return YES;
+    }
+    return NO;
+}
+
 + (NSInteger)operatorPriority:(NSString *)name {
     return [[[TI_TableManager shareManager].operatorMapper objectForKey:name] integerValue];
 }
@@ -51,11 +59,17 @@
 
 - (NSMutableDictionary *)operatorMapper {
     if (!_operatorMapper) {
-        _operatorMapper = [@{@"+" : @(1),
-                             @"-" : @(1),
-                             @"*" : @(2),
-                             @"/" : @(2),
-                             @"(" : @(0)
+        _operatorMapper = [@{@"+" : @(2),
+                             @"-" : @(2),
+                             @"*" : @(3),
+                             @"/" : @(3),
+                             @">" : @(4),
+                             @">=" : @(4),
+                             @"<" : @(4),
+                             @"<=" : @(4),
+                             @"&&" : @(1),
+                             @"||" : @(1),
+                             @"(" : @(0),
                              } mutableCopy];
     }
     return _operatorMapper;
@@ -63,18 +77,30 @@
 
 - (NSMutableDictionary *)funcMapper {
     if (!_funcMapper) {
-        _funcMapper = [@{@"MA" : @(YES),
+        _funcMapper = [@{@"CLOSE" : @(YES),
+                         @"OPEN" : @(YES),
+                         @"HIGH" : @(YES),
+                         @"LOW" : @(YES),
+                         @"MA" : @(YES),
                          @"EMA" : @(YES),
                          @"SMA" : @(YES),
                          @"AVEDEV" : @(YES),
                          @"REF" : @(YES),
-                         @"CLOSE" : @(YES),
-                         @"OPEN" : @(YES),
-                         @"HIGH" : @(YES),
-                         @"LOW" : @(YES)
+                         @"HHV" : @(YES),
+                         @"LLV" : @(YES),
+                         @"BARSLAST" : @(YES),
+                         @"IF" : @(YES),
+                         @"CROSS" : @(YES),
                          } mutableCopy];
     }
     return _funcMapper;
+}
+
+- (NSMutableDictionary *)funcIdentifyMapper {
+    if (!_funcIdentifyMapper) {
+        _funcIdentifyMapper = [@{@"DRAWTEXT" : @(YES)} mutableCopy];
+    }
+    return _funcIdentifyMapper;
 }
 
 - (NSMutableDictionary *)deminsionMapper {
@@ -83,6 +109,12 @@
                               @"-" : @(2),
                               @"*" : @(2),
                               @"/" : @(2),
+                              @">" : @(2),
+                              @">=" : @(2),
+                              @"<" : @(2),
+                              @"<=" : @(2),
+                              @"&&" : @(2),
+                              @"||" : @(2),
                               @"MA" : @(2),
                               @"EMA" : @(2),
                               @"SMA" : @(3),
@@ -91,7 +123,13 @@
                               @"CLOSE" : @(0),
                               @"OPEN" : @(0),
                               @"HIGH" : @(0),
-                              @"LOW" : @(0)
+                              @"LOW" : @(0),
+                              @"HHV" : @(2),
+                              @"LLV" : @(2),
+                              @"BARSLAST" : @(1),
+                              @"IF" : @(3),
+                              @"DRAWTEXT" : @(3),
+                              @"CROSS" : @(2),
                               } mutableCopy];
     }
     return _deminsionMapper;

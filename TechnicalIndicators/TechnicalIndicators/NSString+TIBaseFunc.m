@@ -18,6 +18,12 @@
             case TIExpressionTypeSubtract: [rt addObject:@([self doubleValue] - [datas[i] doubleValue])]; break;
             case TIExpressionTypeMultiply: [rt addObject:@([self doubleValue] * [datas[i] doubleValue])]; break;
             case TIExpressionTypeDivide: [rt addObject:@([self doubleValue] / [datas[i] doubleValue])]; break;
+            case TIExpressionTypeMore: [rt addObject:@([self doubleValue] > [datas[i] doubleValue])]; break;
+            case TIExpressionTypeMoreEqual: [rt addObject:@([self doubleValue] >= [datas[i] doubleValue])]; break;
+            case TIExpressionTypeLess: [rt addObject:@([self doubleValue] < [datas[i] doubleValue])]; break;
+            case TIExpressionTypeLessEqual: [rt addObject:@([self doubleValue] <= [datas[i] doubleValue])]; break;
+            case TIExpressionTypeAnd: [rt addObject:@([self boolValue] && [datas[i] boolValue])]; break;
+            case TIExpressionTypeOr: [rt addObject:@([self boolValue] || [datas[i] boolValue])]; break;
         }
     }
     return [rt copy];

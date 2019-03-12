@@ -26,6 +26,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray *)sma:(NSInteger)n m:(NSInteger)m;
 - (NSArray *)avedev:(NSInteger)n;
 - (NSArray *)ref:(NSInteger)n;
+- (NSArray *)hhv:(NSInteger)n;
+- (NSArray *)llv:(NSInteger)n;
+
+- (NSArray *)barslast;
+- (NSArray *)eifByV1:(NSArray *)v1 v2:(NSArray *)v2;
+- (NSArray *)drawText:(NSArray *)y text:(NSString *)text;
+- (NSArray *)cross:(NSArray *)v;
+- (NSArray *)andOperation:(NSArray *)v;
 
 @end
 

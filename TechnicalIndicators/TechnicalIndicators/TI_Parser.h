@@ -51,7 +51,7 @@ typedef NS_ENUM(NSInteger, TIASTreeNodeType) {
  */
 @interface TI_Statement : NSObject
 
-@property (nonatomic, strong) TI_Token *var;
+@property (nonatomic, copy) NSString *var;
 @property (nonatomic, assign) TIStatementType type;
 @property (nonatomic, copy) NSArray<TI_Token *> *expression;
 

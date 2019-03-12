@@ -61,4 +61,8 @@
     return self.array.count;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"%@", self.array];
+}
+
 @end

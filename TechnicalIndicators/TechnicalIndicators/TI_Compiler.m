@@ -43,12 +43,15 @@
 - (NSDictionary *)computeStatements:(NSArray<TI_Statement *> *)stms datas:(NSArray<NSDictionary *> *)datas {
     NSMutableDictionary *rt = [NSMutableDictionary new];
     for (TI_Statement *stm in stms) {
+        if (!stm.tree.root) {
+            return nil;
+        }
         NSObject *val = [self computeSubTree:stm.tree.root datas:datas];
         if (val) {
-            [self.varMappers setObject:val forKey:stm.var.name];
+            [self.varMappers setObject:val forKey:stm.var];
         }
         if (stm.type == TIStatementType_RETURN) {
-            [rt setObject:val forKey:stm.var.name];
+            [rt setObject:val forKey:stm.var];
         }
     }
     return [rt copy];
@@ -62,6 +65,8 @@
     if (root.nodeType == TIASTreeNodeType_VALUE) {
         if ([self isNumber:root.name]) {
             return root.name;
+        } else if ([self isString:root.name]) {
+            return [root.name substringWithRange:NSMakeRange(1, root.name.length-2)];
         } else {
             NSObject *var = [self.varMappers objectForKey:root.name];
             if (var) {
@@ -92,7 +97,13 @@
     if ([root.name isEqualToString:@"+"] ||
         [root.name isEqualToString:@"-"] ||
         [root.name isEqualToString:@"*"] ||
-        [root.name isEqualToString:@"/"]) {
+        [root.name isEqualToString:@"/"] ||
+        [root.name isEqualToString:@">"] ||
+        [root.name isEqualToString:@">="] ||
+        [root.name isEqualToString:@"<"] ||
+        [root.name isEqualToString:@"<="] ||
+        [root.name isEqualToString:@"&&"] ||
+        [root.name isEqualToString:@"||"]) {
         return [self combineParams:paramsVal expression:root.name];
     } else {
         return [self funcName:root.name params:paramsVal];
@@ -122,6 +133,20 @@
         return [datas avedev:[params[1] integerValue]];
     } else if ([func isEqualToString:@"REF"] && params.count == 2) {
         return [datas ref:[params[1] integerValue]];
+    } else if ([func isEqualToString:@"HHV"] && params.count == 2) {
+        return [datas hhv:[params[1] integerValue]];
+    } else if ([func isEqualToString:@"LLV"] && params.count == 2) {
+        return [datas llv:[params[1] integerValue]];
+    } else if ([func isEqualToString:@"BARSLAST"] && params.count == 1) {
+        return [datas barslast];
+    } else if ([func isEqualToString:@"IF"] && params.count == 3) {
+        return [datas eifByV1:params[1] v2:params[2]];
+    } else if ([func isEqualToString:@"DRAWTEXT"] && params.count == 3) {
+        return [datas drawText:params[1] text:[params[2] description]];
+    } else if ([func isEqualToString:@"CROSS"] && params.count == 2) {
+        return [datas cross:params[1]];
+    } else if ([func isEqualToString:@"AND"] && params.count == 2) {
+        return [datas andOperation:params[1]];
     }
     
     NSLog(@"-------- 调用了未定义的函数：%@", func);
@@ -148,6 +173,18 @@
         type = TIExpressionTypeMultiply;
     } else if ([exp isEqualToString:@"/"]) {
         type = TIExpressionTypeDivide;
+    } else if ([exp isEqualToString:@">"]) {
+        type = TIExpressionTypeMore;
+    } else if ([exp isEqualToString:@">="]) {
+        type = TIExpressionTypeMoreEqual;
+    } else if ([exp isEqualToString:@"<"]) {
+        type = TIExpressionTypeLess;
+    } else if ([exp isEqualToString:@"<="]) {
+        type = TIExpressionTypeLessEqual;
+    } else if ([exp isEqualToString:@"&&"]) {
+        type = TIExpressionTypeAnd;
+    } else if ([exp isEqualToString:@"||"]) {
+        type = TIExpressionTypeOr;
     }
     
     // 常数 +-*/ 数组
@@ -172,8 +209,18 @@
 }
 
 - (BOOL)isNumber:(NSString *)str {
+    if ([str rangeOfString:@"-"].location == 0) {
+        str = [str substringFromIndex:1];
+    }
     str = [str stringByTrimmingCharactersInSet:[NSCharacterSet decimalDigitCharacterSet]];
     if (str.length == 0 || [str isEqualToString:@"."]) {
+        return YES;
+    }
+    return NO;
+}
+
+- (BOOL)isString:(NSString *)str {
+    if ([[str substringToIndex:1] isEqualToString:@"'"] && [[str substringFromIndex:(str.length-1)] isEqualToString:@"'"]) {
         return YES;
     }
     return NO;

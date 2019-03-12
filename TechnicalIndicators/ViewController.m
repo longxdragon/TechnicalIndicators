@@ -23,7 +23,7 @@
     
         
     NSMutableArray *list = [NSMutableArray new];
-    for (NSInteger i = 0; i < 1000; i++) {
+    for (NSInteger i = 0; i < 10; i++) {
         [list addObjectsFromArray:@[
                                     @{ @"h":@"20", @"l":@"10", @"c":@"14", @"o":@"16"},
                                     @{ @"h":@"22", @"l":@"11", @"c":@"12", @"o":@"10"},
@@ -48,14 +48,67 @@
 //    NSLog(@"%@", biasDic);
     
     
+    
+//    NSString *cci = @"\
+//    N = 14;\
+//    TYP = (CLOSE+HIGH+LOW)/3;\
+//    CCI := (TYP-KMA(TYP,N))/(0.015*AVEDEV(TYP,N));\
+//    ";
+//    NSDate *date = [NSDate date];
+//    NSDictionary *cciDic = [[TI_Compiler new] compileString:cci datas:list];
+//    NSLog(@"%f", [[NSDate date] timeIntervalSinceDate:date]);
+//    NSLog(@"%@", cciDic);
+    
+    
+    
+//    NSString *macd = @"\
+//    L := 12;\
+//    M := 9;\
+//    H := 26;\
+//    DIF : EMA(CLOSE, L) - EMA(CLOSE, H);\
+//    DEA : EMA(DIF, M);\
+//    MACD : (DIF - DEA)*2;\
+//    ";
+//    NSDate *date = [NSDate date];
+//    NSDictionary *macdDic = [[TI_Compiler new] compileString:macd datas:list];
+//    NSLog(@"%f", [[NSDate date] timeIntervalSinceDate:date]);
+//    NSLog(@"%@", macdDic);
+    
+    
+    
     NSString *cci = @"\
-    N = 14;\
-    TYP = (CLOSE+HIGH+LOW)/3;\
-    CCI := (TYP-MA(TYP,N))/(0.015*AVEDEV(TYP,N));\
+    HH := HHV(HIGH, 219);\
+    LL := LLV(LOW, 219);\
+    HH1 := BARSLAST((HH > REF(HH,1)));\
+    LL1 := BARSLAST((LL < REF(LL,1)));\
+    X : IF((HH1 < LL1), LL, HH);\
+    Y : IF((HH1 > LL1), HH, LL);\
+    DRAWTEXT(CROSS(HH1,LL1), HH, '空头');\
+    DRAWTEXT(CROSS(LL1,HH1), LL, '多头');\
+    \
+    MA05 : MA(CLOSE,45);\
+    MA10 : MA(CLOSE,13);\
+    VAR1 : MA(CLOSE,55);\
+    \
+    M := 14;\
+    TYP := (HIGH + LOW + CLOSE)/3;\
+    CCI := (TYP-MA(TYP,M))/(0.015*AVEDEV(TYP,M));\
+    \
+    DRAWTEXT(HH1>LL1 && CLOSE<VAR1 && CCI>=100, HIGH+0.005, '卖');\
+    DRAWTEXT(HH1<LL1 && CLOSE>VAR1 && CCI<=-100, LOW-0.005, '买');\
+    \
+    支撑位 : LLV(LOW,219);\
+    压力位 : HHV(HIGH,219);\
     ";
+    NSDate *date = [NSDate date];
     NSDictionary *cciDic = [[TI_Compiler new] compileString:cci datas:list];
+    NSLog(@"%f", [[NSDate date] timeIntervalSinceDate:date]);
     NSLog(@"%@", cciDic);
     
+    
+    //    PARTLINE(VAR1>REF(VAR1,1), VAR1);\
+    //    PARTLINE(VAR1<REF(VAR1,1), VAR1);\
+
 }
 
 @end

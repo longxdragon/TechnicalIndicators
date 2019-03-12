@@ -17,12 +17,18 @@ typedef NS_ENUM(NSInteger, TITokenType) {
     TITokenType_OPERATOR = 1,
     /** 数字 */
     TITokenType_NUMBER = 2,
+    /** 字符串 */
+    TITokenType_STRING = 3,
     /** 分隔符 (){},; */
-    TITokenType_SEPARATOR = 3,
+    TITokenType_SEPARATOR = 4,
     /** 赋值符 = */
-    TITokenType_EQUAL = 4,
+    TITokenType_EQUAL = 5,
     /** 赋值符 := */
-    TITokenType_RETURN = 5,
+    TITokenType_RETURN = 6,
+    /** 函数关键字 */
+    TITokenType_FUNC = 7,
+    /** 函数变量 */
+    TITokenType_FUNC_IDENTIFIER = 8,
 };
 
 

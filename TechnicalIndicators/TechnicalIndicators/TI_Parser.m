@@ -12,6 +12,10 @@
 
 @implementation TI_ASTreeNode
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"{ name : %@ }", self.name];
+}
+
 @end
 
 @implementation TI_ASTree
@@ -34,7 +38,7 @@
             node.name = token.name;
             node.nodeType = TIASTreeNodeType_VALUE;
             
-            if ([TI_TableManager existFunc:token.name] || [TI_TableManager existOperator:token.name]) {
+            if (token.type == TITokenType_FUNC || token.type == TITokenType_OPERATOR || token.type == TITokenType_FUNC_IDENTIFIER) {
                 NSInteger deminsion = [TI_TableManager deminsionOfOperatorOrFunc:token.name];
                 NSMutableArray<TI_ASTreeNode *> *child = [[NSMutableArray alloc] initWithCapacity:deminsion];
                 for (NSInteger i = deminsion - 1; i >= 0; i--) {
@@ -45,7 +49,9 @@
             }
             [nodeStack push:node];
         }
-        self.root = (TI_ASTreeNode *)[nodeStack pop];
+        if ([nodeStack size] == 1) {
+            self.root = (TI_ASTreeNode *)[nodeStack pop];
+        }
     }
     return self;
 }
@@ -69,6 +75,9 @@
 - (void)setExpression:(NSArray<TI_Token *> *)expression {
     _expression = expression;
     self.tree = [[TI_ASTree alloc] initWithPostExpressionStack:[self buildPostExpressionStack:expression]];
+    if (!self.tree.root) {
+        NSLog(@"-------- 语法错误：%@", expression);
+    }
 }
 
 /**
@@ -85,17 +94,16 @@
         if ([token.name isEqualToString:@"("]) {
             [stack push:token];
             
-        } else if ([TI_TableManager existOperator:token.name]) {
+        } else if (token.type == TITokenType_OPERATOR) {
             // +、-、*、/
             TI_Token *lastToken = (TI_Token *)[stack peek];
-            while ([TI_TableManager operatorPriority:lastToken.name] >= [TI_TableManager operatorPriority:token.name] ||
-                   [TI_TableManager existFunc:lastToken.name]) {
+            while ([TI_TableManager operatorPriority:lastToken.name] >= [TI_TableManager operatorPriority:token.name] || lastToken.type == TITokenType_FUNC || lastToken.type == TITokenType_FUNC_IDENTIFIER) {
                 [retStack push:[stack pop]];
                 lastToken = (TI_Token *)[stack peek];
             }
             [stack push:token];
             
-        } else if ([TI_TableManager existFunc:token.name]) {
+        } else if (token.type == TITokenType_FUNC || token.type == TITokenType_FUNC_IDENTIFIER) {
             // MA、SMA、EMA 等自定义函数
             [stack push:token];
             
@@ -111,7 +119,7 @@
             [stack pop];
             
             TI_Token *lastToken = (TI_Token *)[stack peek];
-            if ([TI_TableManager existFunc:lastToken.name]) {
+            if (lastToken.type == TITokenType_FUNC || lastToken.type == TITokenType_FUNC_IDENTIFIER) {
                 [retStack push:[stack pop]];
             }
         } else {
@@ -178,13 +186,21 @@
         if (s == i) {
             if (token.type == TITokenType_IDENTIFIER && next && (next.type == TITokenType_EQUAL || next.type == TITokenType_RETURN)) {
                 exp = [TI_Statement new];
-                exp.var = token;
+                exp.var = token.name;
                 exps = [NSMutableArray new];
+            } else if (token.type == TITokenType_FUNC_IDENTIFIER) {
+                exp = [TI_Statement new];
+                exp.var = [NSString stringWithFormat:@"%@_%ld", token.name, (long)expressions.count];
+                exps = [NSMutableArray arrayWithObject:token];
+                exp.type = TIStatementType_RETURN;
             } else {
                 return nil;
             }
         } else if (i == s + 1) {
-            if (token.type == TITokenType_EQUAL) {
+            TI_Token *pre = tokens[i-1];
+            if (pre.type == TITokenType_FUNC_IDENTIFIER) {
+                [exps addObject:token];
+            } else if (token.type == TITokenType_EQUAL) {
                 continue;
             } else if (token.type == TITokenType_RETURN) {
                 exp.type = TIStatementType_RETURN;

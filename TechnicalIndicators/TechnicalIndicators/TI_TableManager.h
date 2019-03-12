@@ -18,6 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** 是否是自定义函数 */
 + (BOOL)existFunc:(NSString *)name;
 
+/** 是否是自定义函数 且 不需要定义变量 */
++ (BOOL)existFuncIdentify:(NSString *)name;
+
 /** 运算符等级 */
 + (NSInteger)operatorPriority:(NSString *)name;
 
